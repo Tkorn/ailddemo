@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -26,6 +27,13 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = getClass().getSimpleName();
     private IBookManager mIBookManager;
     private IOnNewBookArrivedListener mNewBookArrivedListener;
+
+    private Binder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            bindBookManagerService();
+        }
+    };
 
     ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -76,8 +84,11 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        bindBookManagerService();
 
+    }
 
+    private void bindBookManagerService(){
         Intent intent = new Intent(this, BookManagerService.class);
         bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
